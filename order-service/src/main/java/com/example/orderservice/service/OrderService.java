@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
@@ -24,12 +25,9 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final WebClient webClient;
-
+    private final WebClient.Builder webClientBuilder;
     public void placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
-        order.setId(Long.valueOf(UUID.randomUUID().toString()));
-
 
         List<OrderLineItem> orderLineItems = orderRequest.getOrderLineItemDtoList()
                 .stream()
@@ -40,10 +38,13 @@ public class OrderService {
 
         List<String> skuCodes = order.getItems().stream().map(OrderLineItem::getSkuCode).toList();
 
+        List<Integer> quantities = order.getItems().stream().map(OrderLineItem::getQuantity).toList();
 
-        InventoryResponse[] inventoryResponses = webClient.get()
-                .uri("http://localhost:8082/api/inventory",
+        InventoryResponse[] inventoryResponses = webClientBuilder.build()
+                .get()
+                .uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes)
+                                .queryParam("quantity",quantities)
                                 .build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
@@ -60,8 +61,9 @@ public class OrderService {
     private OrderLineItem mapToDto(OrderLineItemDto orderLineItemDto) {
         OrderLineItem orderLineItem = new OrderLineItem();
         orderLineItem.setPrice(orderLineItemDto.getPrice());
-        orderLineItem.setSkuCode(orderLineItem.getSkuCode());
+        orderLineItem.setSkuCode(orderLineItemDto.getSkuCode());
         orderLineItem.setQuantity(orderLineItemDto.getQuantity());
+        orderLineItem.setOrderLineItems(orderLineItem.getOrderLineItems());
 
         return orderLineItem;
 

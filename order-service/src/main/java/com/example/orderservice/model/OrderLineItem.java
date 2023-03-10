@@ -23,9 +23,7 @@ public class OrderLineItem {
     private Long id;
     private String skuCode;
     private BigDecimal price;
-
     private Integer quantity;
-
     @OneToMany(cascade = CascadeType.ALL)
     private List<OrderLineItem> orderLineItems;
 }

@@ -1,16 +1,11 @@
-package com.example.orderservice.config;
+package com.example.inventoryservice.config;
 
-
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebClientConfig implements WebMvcConfigurer {
-
+public class WenConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -18,8 +13,4 @@ public class WebClientConfig implements WebMvcConfigurer {
                 .allowedMethods("HEAD","GET","POST","PUT","DELETE","PATCH","OPTIONS");
     }
 
-    @Bean
-    public WebClient webClient() {
-        return WebClient.builder().build();
-    }
 }
